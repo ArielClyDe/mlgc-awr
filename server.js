@@ -6,6 +6,7 @@ const path = require('path');
 const { Storage } = require('@google-cloud/storage');
 const tf = require('@tensorflow/tfjs-node');
 const tmp = require('tmp'); // Untuk direktori sementara
+const admin = require('firebase-admin'); // Firebase Admin SDK
 
 // Konfigurasi server Hapi
 const server = Hapi.server({
@@ -23,6 +24,14 @@ if (!fs.existsSync(uploadsDir)) {
 const bucketName = 'submissionmlgc-arielwirar';
 const modelFolder = 'submission-model/';
 let model;
+
+// Konfigurasi Firebase Admin SDK
+const serviceAccount = require('./path/to/your-service-account-key.json'); // Ganti dengan file kunci Anda
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://<your-project-id>.firebaseio.com',
+});
+const db = admin.firestore();
 
 // Fungsi untuk mengunduh dan memuat model dari Cloud Storage
 const loadModel = async () => {
@@ -108,15 +117,21 @@ server.route({
 
                 const result = await predictImage(imagePath);
 
+                const predictionData = {
+                    id,
+                    result,
+                    suggestion: result === 'Cancer' ? 'Segera periksa ke dokter!' : 'Penyakit kanker tidak terdeteksi.',
+                    createdAt: new Date().toISOString(),
+                };
+
+                // Simpan hasil prediksi ke Firestore
+                await db.collection('predictions').doc(id).set(predictionData);
+                console.log(`Prediction saved to Firestore: ${JSON.stringify(predictionData)}`);
+
                 const response = {
                     status: 'success',
                     message: 'Model is predicted successfully',
-                    data: {
-                        id: id,
-                        result: result,
-                        suggestion: result === 'Cancer' ? 'Segera periksa ke dokter!' : 'Penyakit kanker tidak terdeteksi.',
-                        createdAt: new Date().toISOString(),
-                    },
+                    data: predictionData,
                 };
 
                 fs.unlinkSync(imagePath); // Hapus file gambar setelah prediksi selesai
