@@ -10,9 +10,10 @@ const admin = require('firebase-admin'); // Firebase Admin SDK
 
 // Konfigurasi server Hapi
 const server = Hapi.server({
-    port: 8080,
-    host: '0.0.0.0', // Ganti localhost ke 0.0.0.0 untuk Cloud Run
+    port: process.env.PORT || 8080, // Gunakan PORT dari environment variable
+    host: '0.0.0.0', // Harus menggunakan 0.0.0.0 di Cloud Run
 });
+
 
 // Direktori untuk menyimpan sementara file upload
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -26,11 +27,13 @@ const modelFolder = 'submission-model/';
 let model;
 
 // Konfigurasi Firebase Admin SDK
-const serviceAccount = require('./path/to/your-service-account-key.json'); // Ganti dengan file kunci Anda
+const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://<your-project-id>.firebaseio.com',
+    databaseURL: 'https://submissionmlgc-arielwirar.firebaseio.com',
 });
+
+
 const db = admin.firestore();
 
 // Fungsi untuk mengunduh dan memuat model dari Cloud Storage
