@@ -1,23 +1,20 @@
-# Gunakan image resmi Node.js versi 18 sebagai base image
-FROM node:18.20.5-slim
+# Gunakan image resmi Node.js sebagai base
+FROM node:18-slim
 
-# Tetapkan NODE_ENV sebagai production untuk mengoptimalkan aplikasi
-ENV NODE_ENV=production
-
-# Tentukan direktori kerja di dalam container
+# Set work directory
 WORKDIR /usr/src/app
 
-# Salin file package.json dan package-lock.json (jika ada) terlebih dahulu
+# Salin package.json dan package-lock.json
 COPY package*.json ./
 
-# Install dependensi aplikasi, hanya untuk production
-RUN npm install --only=production
+# Install dependensi
+RUN npm install
 
-# Salin seluruh kode aplikasi ke dalam container
+# Salin seluruh kode aplikasi ke container
 COPY . .
 
-# Expose port 8080 (port yang digunakan oleh aplikasi)
+# Expose port 8080
 EXPOSE 8080
 
-# Jalankan aplikasi saat container dijalankan
+# Jalankan aplikasi
 CMD ["node", "server.js"]
