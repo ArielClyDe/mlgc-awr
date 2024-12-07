@@ -1,14 +1,17 @@
-# Gunakan image resmi Node.js versi 18.20.5 sebagai base image
+# Gunakan image resmi Node.js versi 18 sebagai base image
 FROM node:18.20.5-slim
+
+# Tetapkan NODE_ENV sebagai production untuk mengoptimalkan aplikasi
+ENV NODE_ENV=production
 
 # Tentukan direktori kerja di dalam container
 WORKDIR /usr/src/app
 
-# Salin file package.json dan package-lock.json (jika ada) untuk instalasi dependensi
+# Salin file package.json dan package-lock.json (jika ada) terlebih dahulu
 COPY package*.json ./
 
-# Install dependensi aplikasi
-RUN npm install
+# Install dependensi aplikasi, hanya untuk production
+RUN npm install --only=production
 
 # Salin seluruh kode aplikasi ke dalam container
 COPY . .
