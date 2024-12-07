@@ -15,6 +15,7 @@ const server = Hapi.server({
 });
 
 
+
 // Direktori untuk menyimpan sementara file upload
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -151,6 +152,15 @@ server.route({
     }
 });
 
+server.route({
+    method: 'GET',
+    path: '/health',
+    handler: (request, h) => {
+        return { status: 'healthy' };
+    },
+});
+
+
 // Fungsi untuk memulai server
 const start = async () => {
     try {
@@ -163,6 +173,11 @@ const start = async () => {
         process.exit(1);
     }
 };
+process.on('unhandledRejection', (reason, p) => {
+    console.log('Unhandled Rejection at:', p, 'reason:', reason);
+});
+
+console.log(`Server starting on port: ${process.env.PORT || 8080}`);
 
 // Memulai server
 start();
