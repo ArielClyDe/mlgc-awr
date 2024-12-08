@@ -28,7 +28,7 @@ const modelFolder = 'submission-model/';
 let model;
 
 // Konfigurasi Firebase Admin SDK
-const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
+const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: 'https://submissionmlgc-arielwirar.firebaseio.com',
